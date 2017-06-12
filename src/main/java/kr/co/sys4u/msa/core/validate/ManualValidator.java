@@ -1,11 +1,15 @@
 package kr.co.sys4u.msa.core.validate;
 
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
+
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 
 import kr.co.sys4u.msa.core.exception.BadRequestException;
 
@@ -38,14 +42,24 @@ public final class ManualValidator {
         }
     }
 
-    public static <T> void validate(T obj) {
-        notNull(obj);
+    public static void validate(Object... objs) {
+        for (Object obj : objs) {
+            notNull(obj);
 
-        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-        Set<ConstraintViolation<T>> errors = validator.validate(obj);
+            Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+            Set<ConstraintViolation<Object>> errors = validator.validate(obj);
 
-        if (!errors.isEmpty()) {
-            throw new BadRequestException(obj.getClass() + ": " + errors.iterator().next().getMessage());
+            if (!errors.isEmpty()) {
+                throw new BadRequestException(obj.getClass() + ": " + errors.iterator().next().getMessage());
+            }
+        }
+    }
+
+    public static void checkBindingResult(BindingResult bindingResult) {
+        List<ObjectError> objectErrors = bindingResult.getAllErrors();
+        if (!objectErrors.isEmpty()) {
+            ObjectError error = objectErrors.get(0);
+            throw new BadRequestException(error.getCode() + ": " + error.getDefaultMessage());
         }
     }
 }
