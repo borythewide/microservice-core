@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import kr.co.sys4u.msa.core.exception.rest.RestException;
+
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -26,5 +28,10 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         responseObject.put("error-message", re.getMessage());
 
         return handleExceptionInternal(re, responseObject, new HttpHeaders(), httpStatus, request);
+    }
+    
+    @ExceptionHandler(value = {RestException.class})
+    public String handleRestException(RestException restException){
+    	return "error/500";
     }
 }
