@@ -39,7 +39,7 @@ public class ApiClientScanner extends ClassPathBeanDefinitionScanner {
 	
 	public void scanAndUpdateBeanDefinition() {
 		String strBeanPackages = environment.getProperty(KEY_FOR_API_CLIENT_BASE_PACKAGES);
-		if(strBeanPackages == null) {
+		if(strBeanPackages == null || strBeanPackages.isEmpty()) {
 			return;
 		}
 		
