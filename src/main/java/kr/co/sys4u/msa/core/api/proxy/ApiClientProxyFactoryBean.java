@@ -24,13 +24,17 @@ public class ApiClientProxyFactoryBean<T> implements FactoryBean<T> {
 		ApiClient apiRequest = apiClientInterface.getAnnotation(ApiClient.class);
 		
 		ApiClientProxy apiClientProxy = new ApiClientProxy(environment);
-		apiClientProxy.setServerUrl(environment.getRequiredProperty(apiRequest.serverUrl()));
+		apiClientProxy.setServerUrl(getServerUrl(apiRequest.serverUrl()));
 		
 		return (T) Proxy.newProxyInstance(
 				apiClientInterface.getClassLoader(), 
 				new Class<?>[] { apiClientInterface },
 				apiClientProxy
 		);
+	}
+
+	private String getServerUrl(String key) {
+		return environment.getProperty(key) != null ? environment.getProperty(key) : key;
 	}
 
 	@Override
