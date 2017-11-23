@@ -3,17 +3,17 @@ package kr.co.sys4u.msa.core.api.proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-import org.springframework.core.env.Environment;
+import org.springframework.context.ApplicationContext;
 
 import kr.co.sys4u.msa.core.annotation.ApiRequest;
 import kr.co.sys4u.msa.core.api.proxy.resttemplate.RestTemplateHelper;
 
 public class ApiClientProxy implements InvocationHandler {
-	private Environment environment;
+	private ApplicationContext applicationContext;
 	private String serverUrl;
 	
-	public ApiClientProxy(Environment environment) {
-		this.environment = environment;
+	public ApiClientProxy(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
 	
 	@Override
@@ -29,14 +29,13 @@ public class ApiClientProxy implements InvocationHandler {
 	private Object requestWithRestTemplate(Method method, Object[] args) {
 		ApiRequest apiRequest = method.getAnnotation(ApiRequest.class);
 		
-		RestTemplateHelper helper = RestTemplateHelper.create()
-				.environment(environment)
+		return RestTemplateHelper.create()
+				.environment(applicationContext)
 				.url(createUrl(apiRequest))
 				.args(args)
 				.httpMethod(apiRequest.method())
-				.returnType(method.getReturnType());
-		
-		return helper.invoke();
+				.returnType(method.getReturnType())
+				.invoke();
 	}
 
 	public void setServerUrl(String serverUrl) {

@@ -2,15 +2,12 @@ package kr.co.sys4u.msa.core.api.proxy.resttemplate;
 
 import java.util.Arrays;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.springframework.core.env.Environment;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 public class RestTemplateHelper {
-	private Environment environment;
+	private ApplicationContext applicationContext;
 	private RestTemplateContext restTemplateContext;
 	
 	public static RestTemplateHelper create() {
@@ -20,8 +17,8 @@ public class RestTemplateHelper {
 		return helper;
 	}
 	
-	public RestTemplateHelper environment(Environment environment) {
-		this.environment = environment;
+	public RestTemplateHelper environment(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 		return this;
 	}
 	
@@ -69,14 +66,14 @@ public class RestTemplateHelper {
 	}
 	
 	public Object get() {
-		return createRestTemplate().getForObject(
+		return applicationContext.getBean(RestTemplate.class).getForObject(
 				restTemplateContext.url, 
 				restTemplateContext.returnType, 
 				restTemplateContext.args);
 	}
 	
 	public Object post() {
-		return createRestTemplate().postForObject(
+		return applicationContext.getBean(RestTemplate.class).postForObject(
 				restTemplateContext.url,
 				restTemplateContext.args.length > 0 ? restTemplateContext.args[0] : null, 
 				restTemplateContext.returnType, 
@@ -84,29 +81,16 @@ public class RestTemplateHelper {
 	}
 	
 	public void put() {
-		createRestTemplate().put(
+		applicationContext.getBean(RestTemplate.class).put(
 				restTemplateContext.url,
 				restTemplateContext.args.length > 0 ? restTemplateContext.args[0] : null,
 				restTemplateContext.args.length > 1 ? Arrays.copyOfRange(restTemplateContext.args, 1, restTemplateContext.args.length) : new Object[] {});
 	}
 	
 	public void delete() {
-		createRestTemplate().delete(
+		applicationContext.getBean(RestTemplate.class).delete(
 				restTemplateContext.url,
 				restTemplateContext.args);
-	}
-	
-	public RestTemplate createRestTemplate() {
-		RestTemplate restTemplate = new RestTemplate();
-		
-		HttpClient httpClient = HttpClientBuilder.create()
-				.setMaxConnTotal(Integer.valueOf(environment.getProperty("api.client.conn.maxConnTotal", "100")))
-				.setMaxConnPerRoute(Integer.valueOf(environment.getProperty("api.client.conn.maxConnPerRoute", "100")))
-				.build();
-		
-		restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
-
-		return restTemplate;
 	}
 	
 	private static class RestTemplateContext{
