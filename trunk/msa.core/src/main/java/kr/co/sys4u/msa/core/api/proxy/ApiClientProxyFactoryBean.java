@@ -4,13 +4,13 @@ import java.lang.reflect.Proxy;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+import org.springframework.context.ApplicationContext;
 
 import kr.co.sys4u.msa.core.annotation.ApiClient;
 
 public class ApiClientProxyFactoryBean<T> implements FactoryBean<T> {
 	@Autowired
-	private Environment environment;
+	private ApplicationContext applicationContext;
 	
 	private Class<T> apiClientInterface;
 
@@ -23,7 +23,7 @@ public class ApiClientProxyFactoryBean<T> implements FactoryBean<T> {
 	public T getObject() throws Exception {
 		ApiClient apiRequest = apiClientInterface.getAnnotation(ApiClient.class);
 		
-		ApiClientProxy apiClientProxy = new ApiClientProxy(environment);
+		ApiClientProxy apiClientProxy = new ApiClientProxy(applicationContext);
 		apiClientProxy.setServerUrl(getServerUrl(apiRequest.serverUrl()));
 		
 		return (T) Proxy.newProxyInstance(
@@ -34,7 +34,9 @@ public class ApiClientProxyFactoryBean<T> implements FactoryBean<T> {
 	}
 
 	private String getServerUrl(String key) {
-		return environment.getProperty(key) != null ? environment.getProperty(key) : key;
+		return applicationContext.getEnvironment().getProperty(key) != null ? 
+				applicationContext.getEnvironment().getProperty(key) : 
+				key;
 	}
 
 	@Override
