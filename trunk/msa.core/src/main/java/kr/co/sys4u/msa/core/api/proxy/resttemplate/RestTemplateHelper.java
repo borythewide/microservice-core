@@ -1,7 +1,6 @@
 package kr.co.sys4u.msa.core.api.proxy.resttemplate;
 
 import java.util.Arrays;
-import java.util.Map;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -69,43 +68,32 @@ public class RestTemplateHelper {
 		return returnValue;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Object get() {
-		boolean isMapUriVariable = restTemplateContext.args.length > 0 && restTemplateContext.args[0].getClass().isAssignableFrom(Map.class);
-		
 		return createRestTemplate().getForObject(
 				restTemplateContext.url, 
 				restTemplateContext.returnType, 
-				isMapUriVariable ? (Map<String, ?>)restTemplateContext.args[0] : restTemplateContext.args);
+				restTemplateContext.args);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Object post() {
-		boolean isMapUriVariable = restTemplateContext.args.length > 1 && restTemplateContext.args[1].getClass().isAssignableFrom(Map.class);
-		
 		return createRestTemplate().postForObject(
 				restTemplateContext.url,
-				restTemplateContext.args[0], 
+				restTemplateContext.args.length > 0 ? restTemplateContext.args[0] : null, 
 				restTemplateContext.returnType, 
-				isMapUriVariable ? (Map<String, ?>)restTemplateContext.args[1] : Arrays.copyOfRange(restTemplateContext.args, 1, restTemplateContext.args.length));
+				restTemplateContext.args.length > 1 ? Arrays.copyOfRange(restTemplateContext.args, 1, restTemplateContext.args.length) : new Object[] {});
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void put() {
-		boolean isMapUriVariable = restTemplateContext.args.length > 1 && restTemplateContext.args[1].getClass().isAssignableFrom(Map.class);
-		
 		createRestTemplate().put(
 				restTemplateContext.url,
-				restTemplateContext.args[0], 
-				isMapUriVariable ? (Map<String, ?>)restTemplateContext.args[1] : Arrays.copyOfRange(restTemplateContext.args, 1, restTemplateContext.args.length));
+				restTemplateContext.args.length > 0 ? restTemplateContext.args[0] : null,
+				restTemplateContext.args.length > 1 ? Arrays.copyOfRange(restTemplateContext.args, 1, restTemplateContext.args.length) : new Object[] {});
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void delete() {
-		boolean isMapUriVariable = restTemplateContext.args.length > 0 && restTemplateContext.args[0].getClass().isAssignableFrom(Map.class);
 		createRestTemplate().delete(
 				restTemplateContext.url,
-				isMapUriVariable ? (Map<String, ?>)restTemplateContext.args[0] : restTemplateContext.args);
+				restTemplateContext.args);
 	}
 	
 	public RestTemplate createRestTemplate() {
